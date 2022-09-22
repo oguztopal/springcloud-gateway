@@ -1,0 +1,48 @@
+server:
+  port: 7081
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      httpclient:
+        connect-timeout: 10000
+        response-timeout: 7s
+      routes:
+        - id: ticket-service
+          uri: "http://localhost:7071/"
+          predicates:
+            - Path=/ticket/*
+            - Method=POST
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: ticketBreaker
+                fallbackUri: forward:/fb/ticket/
+        - id: account-service
+          uri: "http://localhost:7061/"
+          predicates:
+            - Path=/reservation/*
+            - Method=POST
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: reservationBreaker
+                fallbackUri: forward:/fb/reservation/
+    discovery:
+      enabled: true
+
+resilience4j:
+  time limiter:
+    configs:
+      default:
+        timeoutDuration: 7000
+        cancelRunningFuture: true
+
+logging:
+  level:
+    org:
+      springframework:
+        cloud.gateway: DEBUG
+        http.server.reactive: DEBUG
+        web.reactive: DEBUG
