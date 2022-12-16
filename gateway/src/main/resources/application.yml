@@ -12,18 +12,17 @@ spring:
         - id: ticket-service
           uri: "http://localhost:7071/"
           predicates:
-            - Path=/ticket/*
-            - Method=POST
+            - Path=/ticket/* , /v3/api-docs/ticket
           filters:
             - name: CircuitBreaker
               args:
                 name: ticketBreaker
                 fallbackUri: forward:/fb/ticket/
-        - id: account-service
+        - id: reservation-service
           uri: "http://localhost:7061/"
           predicates:
-            - Path=/reservation/*
-            - Method=POST
+            - Path=/reservation/* , /v3/api-docs/reservation
+
           filters:
             - name: CircuitBreaker
               args:
